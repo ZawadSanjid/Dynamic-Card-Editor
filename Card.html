@@ -1,0 +1,1092 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Transfer News Poster Studio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,700;0,800;0,900;1,900&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050811;
+            --panel-bg: #0d1322;
+            --panel-border: #1a243a;
+            --accent-lime: #bbf70e;
+            --accent-blue: #0284c7;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: #090e1a;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            z-index: 50;
+            position: sticky;
+            top: 0;
+        }
+
+            header h1 {
+                font-family: 'Bebas Neue', sans-serif;
+                font-size: 1.6rem;
+                letter-spacing: 1.5px;
+                color: var(--accent-lime);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+        /* RESPONSIVE LAYOUT CONTAINER */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .main-container {
+                flex-direction: row;
+                height: calc(100vh - 60px);
+                overflow: hidden;
+            }
+        }
+
+        /* CANVAS AREA */
+        .canvas-area {
+            flex: 1;
+            background: #020408;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            position: relative;
+            min-height: 50vh;
+        }
+
+        @media (min-width: 1024px) {
+            .canvas-area {
+                padding: 24px;
+                height: 100%;
+                overflow: hidden;
+            }
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            height: 100%;
+        }
+
+        #posterCanvas {
+            max-width: 100%;
+            max-height: 55vh;
+            width: auto;
+            height: auto;
+            aspect-ratio: 9 / 16;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85);
+            border-radius: 6px;
+            border: 1px solid var(--panel-border);
+            object-fit: contain;
+            touch-action: none;
+        }
+
+        @media (min-width: 1024px) {
+            #posterCanvas {
+                max-height: 85vh;
+            }
+        }
+
+        /* SIDEBAR / CONTROLS AREA */
+        .sidebar {
+            width: 100%;
+            background: var(--panel-bg);
+            border-top: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 1024px) {
+            .sidebar {
+                width: 420px;
+                min-width: 420px;
+                border-top: none;
+                border-right: 1px solid var(--panel-border);
+                height: 100%;
+                order: -1;
+            }
+        }
+
+        /* TAB NAVIGATION */
+        .tabs {
+            display: flex;
+            background: #060912;
+            border-bottom: 1px solid var(--panel-border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 85px;
+            padding: 12px 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+            .tab-btn.active {
+                color: var(--accent-lime);
+                border-bottom-color: var(--accent-lime);
+                background: rgba(187, 247, 14, 0.05);
+            }
+
+        .panel-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 1024px) {
+            .panel-body {
+                overflow-y: auto;
+                flex: 1;
+            }
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+            .tab-content.active {
+                display: flex;
+            }
+
+        /* FORM CONTROLS */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .form-group label {
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                font-weight: 800;
+                color: var(--text-muted);
+                letter-spacing: 0.5px;
+            }
+
+        .form-control {
+            background: #060912;
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+            .form-control:focus {
+                border-color: var(--accent-lime);
+            }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            min-height: 44px;
+        }
+
+        .btn-primary {
+            background: var(--accent-lime);
+            color: #000;
+        }
+
+            .btn-primary:active, .btn-primary:hover {
+                background: #a3d90b;
+            }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: white;
+            border: 1px solid var(--panel-border);
+        }
+
+        .preset-logos {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .preset-logo-btn {
+            background: #060912;
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            min-height: 44px;
+        }
+
+            .preset-logo-btn:hover, .preset-logo-btn:active {
+                border-color: var(--accent-lime);
+                background: #1a243a;
+            }
+
+            .preset-logo-btn img {
+                width: 28px;
+                height: 28px;
+                object-fit: contain;
+            }
+
+        .tool-bar {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            flex: 1;
+            padding: 10px;
+            background: #060912;
+            border: 1px solid var(--panel-border);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 44px;
+        }
+
+            .tool-btn.active {
+                background: var(--accent-blue);
+                border-color: var(--accent-blue);
+            }
+
+        .api-status {
+            font-size: 0.75rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+            .status-dot.active {
+                background: #22c55e;
+            }
+
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 4, 8, 0.88);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid rgba(187, 247, 14, 0.2);
+            border-top-color: var(--accent-lime);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .slider-group input {
+                flex: 1;
+                height: 30px;
+            }
+
+        .slider-value {
+            font-size: 0.75rem;
+            width: 38px;
+            text-align: right;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ TRANSFER STUDIO</h1>
+        <button class="btn btn-primary" id="downloadBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            EXPORT PNG
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- CANVAS PREVIEW WORKSPACE -->
+        <div class="canvas-area">
+            <div class="canvas-wrapper">
+                <canvas id="posterCanvas" width="1080" height="1920"></canvas>
+            </div>
+
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+                <p style="margin-top: 16px; font-weight: 700; color: var(--accent-lime);" id="loadingText">Processing Background Removal...</p>
+            </div>
+        </div>
+
+        <!-- SIDEBAR CONTROLS -->
+        <div class="sidebar">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('photo', event)">PHOTO & BG</button>
+                <button class="tab-btn" onclick="switchTab('info', event)">PLAYER INFO</button>
+                <button class="tab-btn" onclick="switchTab('teams', event)">CLUBS & LOGOS</button>
+                <button class="tab-btn" onclick="switchTab('settings', event)">API KEY</button>
+            </div>
+
+            <div class="panel-body">
+                <!-- TAB 1: PHOTO & BG REMOVAL -->
+                <div id="tab-photo" class="tab-content active">
+                    <div class="form-group">
+                        <label>Upload Player Photo</label>
+                        <input type="file" id="playerFileInput" accept="image/*" class="form-control">
+                    </div>
+
+                    <div class="form-group" style="background: #060912; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border);">
+                        <label style="color: var(--accent-lime);">Automatic Remove.bg API</label>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+                            Auto removes background on photo upload if API Key is configured.
+                        </p>
+                        <button class="btn btn-secondary" id="triggerRemoveBgBtn" style="width: 100%;">
+                            ⚡ Run Remove.bg AI
+                        </button>
+                        <div class="api-status">
+                            <span class="status-dot" id="apiStatusDot"></span>
+                            <span id="apiStatusText">API Key Not Configured</span>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: var(--panel-border);">
+
+                    <div class="form-group">
+                        <label>Touch-up & Manual Tools</label>
+                        <div class="tool-bar">
+                            <button class="tool-btn active" id="toolMoveBtn" onclick="setTool('move')">🖐️ Move/Scale</button>
+                            <button class="tool-btn" id="toolWandBtn" onclick="setTool('wand')">🪄 Wand Erase</button>
+                        </div>
+                        <div class="tool-bar" style="margin-top: 6px;">
+                            <button class="tool-btn" id="toolEraserBtn" onclick="setTool('eraser')">🧹 Eraser</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tool Tolerance / Brush Size</label>
+                        <div class="slider-group">
+                            <input type="range" id="brushSizeInput" min="5" max="100" value="35" class="form-control">
+                            <span class="slider-value" id="brushSizeVal">35px</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Player Position & Size</label>
+                        <div class="row-2">
+                            <div class="form-group">
+                                <label>Scale</label>
+                                <input type="range" id="playerScaleInput" min="0.5" max="2.5" step="0.05" value="1.1" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Vertical Position</label>
+                                <input type="range" id="playerYInput" min="-300" max="300" step="5" value="0" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: PLAYER INFO -->
+                <div id="tab-info" class="tab-content">
+                    <div class="form-group">
+                        <label>Top Title Badge</label>
+                        <input type="text" id="topBadgeText" value="TRANSFER" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Main Headline</label>
+                        <input type="text" id="mainHeadlineText" value="RUMOUR" class="form-control">
+                    </div>
+
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label>Player Name</label>
+                            <input type="text" id="playerNameInput" value="RUFUS STEWART" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Age / Number</label>
+                            <input type="text" id="playerAgeInput" value="38" class="form-control">
+                        </div>
+                    </div>
+
+                    <hr style="border-color: var(--panel-border);">
+
+                    <div class="form-group">
+                        <label>Transfer Details (Bottom Card)</label>
+                        <div class="row-2">
+                            <div class="form-group">
+                                <label>Market Value</label>
+                                <input type="text" id="valInput" value="$20M" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <input type="text" id="statusInput" value="NEW CONTRACT" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label>Contract Until</label>
+                            <input type="text" id="untilInput" value="2028" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: CLUBS & LOGOS -->
+                <div id="tab-teams" class="tab-content">
+                    <div class="form-group">
+                        <label>From / Current Club (Left Logo)</label>
+                        <input type="file" id="leftLogoFile" accept="image/*" class="form-control">
+                        <div class="preset-logos">
+                            <button class="preset-logo-btn" onclick="setPresetLogo('left', 'https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" alt="Real Madrid">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('left', 'https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crcle%29.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crcle%29.svg" alt="FC Barcelona">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('left', 'https://upload.wikimedia.org/wikipedia/en/c/c1/Atletico_Madrid_logo.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/c/c1/Atletico_Madrid_logo.svg" alt="Atletico Madrid">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('left', 'https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg" alt="Man City">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('left', 'https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg" alt="PSG">
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: var(--panel-border);">
+
+                    <div class="form-group">
+                        <label>To / Destination Club (Right Logo)</label>
+                        <input type="file" id="rightLogoFile" accept="image/*" class="form-control">
+                        <div class="preset-logos">
+                            <button class="preset-logo-btn" onclick="setPresetLogo('right', 'https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg" alt="Arsenal">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('right', 'https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" alt="Chelsea">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('right', 'https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('right', 'https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg" alt="Bayern">
+                            </button>
+                            <button class="preset-logo-btn" onclick="setPresetLogo('right', 'https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg')">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg" alt="Man Utd">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: API KEY SETTINGS -->
+                <div id="tab-settings" class="tab-content">
+                    <div class="form-group">
+                        <label>Remove.bg API Key</label>
+                        <input type="password" id="apiKeyInput" placeholder="Enter API Key" class="form-control">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                            Get a free key at <a href="https://www.remove.bg/api" target="_blank" style="color: var(--accent-blue);">remove.bg/api</a>. Key is saved locally in your browser.
+                        </p>
+                    </div>
+
+                    <button class="btn btn-primary" id="saveApiKeyBtn">💾 Save API Key</button>
+
+                    <hr style="border-color: var(--panel-border); margin: 10px 0;">
+
+                    <div class="form-group">
+                        <label>API Key Usage Info</label>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                            Remove.bg provides 50 free credits per month. With this key saved, every photo upload automatically triggers instant background removal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('posterCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const state = {
+            topBadge: "TRANSFER",
+            mainHeadline: "RUMOUR",
+            playerName: "RUFUS STEWART",
+            playerAge: "38",
+            marketValue: "$20M",
+            status: "NEW CONTRACT",
+            until: "2028",
+
+            playerImageRaw: null,
+            playerImageProcessed: null,
+            playerScale: 1.1,
+            playerYOffset: 0,
+
+            leftLogo: null,
+            rightLogo: null,
+
+            activeTool: 'move',
+            brushSize: 35,
+
+            removeBgApiKey: localStorage.getItem('REMOVE_BG_API_KEY') || ''
+        };
+
+        let playerEditCanvas = document.createElement('canvas');
+        let playerEditCtx = playerEditCanvas.getContext('2d');
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            initApiKeyUI();
+
+            if (document.fonts) {
+                await document.fonts.ready;
+            }
+
+            loadDefaultAssets();
+            setupEventListeners();
+        });
+
+        function switchTab(tabName, event) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (event) event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function initApiKeyUI() {
+            const keyInput = document.getElementById('apiKeyInput');
+            const statusDot = document.getElementById('apiStatusDot');
+            const statusText = document.getElementById('apiStatusText');
+
+            if (state.removeBgApiKey) {
+                keyInput.value = state.removeBgApiKey;
+                statusDot.classList.add('active');
+                statusText.innerText = "API Key Active";
+                statusText.style.color = "#22c55e";
+            } else {
+                statusDot.classList.remove('active');
+                statusText.innerText = "API Key Not Set";
+                statusText.style.color = "#ef4444";
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('topBadgeText').addEventListener('input', e => { state.topBadge = e.target.value; renderCanvas(); });
+            document.getElementById('mainHeadlineText').addEventListener('input', e => { state.mainHeadline = e.target.value; renderCanvas(); });
+            document.getElementById('playerNameInput').addEventListener('input', e => { state.playerName = e.target.value; renderCanvas(); });
+            document.getElementById('playerAgeInput').addEventListener('input', e => { state.playerAge = e.target.value; renderCanvas(); });
+            document.getElementById('valInput').addEventListener('input', e => { state.marketValue = e.target.value; renderCanvas(); });
+            document.getElementById('statusInput').addEventListener('input', e => { state.status = e.target.value; renderCanvas(); });
+            document.getElementById('untilInput').addEventListener('input', e => { state.until = e.target.value; renderCanvas(); });
+
+            document.getElementById('playerScaleInput').addEventListener('input', e => { state.playerScale = parseFloat(e.target.value); renderCanvas(); });
+            document.getElementById('playerYInput').addEventListener('input', e => { state.playerYOffset = parseFloat(e.target.value); renderCanvas(); });
+
+            document.getElementById('playerFileInput').addEventListener('change', handlePlayerUpload);
+            document.getElementById('leftLogoFile').addEventListener('change', e => handleLogoUpload(e, 'left'));
+            document.getElementById('rightLogoFile').addEventListener('change', e => handleLogoUpload(e, 'right'));
+
+            document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
+                const key = document.getElementById('apiKeyInput').value.trim();
+                state.removeBgApiKey = key;
+                localStorage.setItem('REMOVE_BG_API_KEY', key);
+                initApiKeyUI();
+                alert('Remove.bg API Key saved!');
+            });
+
+            document.getElementById('triggerRemoveBgBtn').addEventListener('click', () => {
+                if (!state.playerImageRaw) {
+                    alert('Please upload a player photo first!');
+                    return;
+                }
+                processRemoveBgAPI(state.playerImageRaw.src);
+            });
+
+            document.getElementById('brushSizeInput').addEventListener('input', e => {
+                state.brushSize = parseInt(e.target.value);
+                document.getElementById('brushSizeVal').innerText = state.brushSize + 'px';
+            });
+
+            document.getElementById('downloadBtn').addEventListener('click', downloadPoster);
+
+            canvas.addEventListener('pointerdown', handleCanvasClick);
+        }
+
+        function setTool(tool) {
+            state.activeTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            if (tool === 'move') document.getElementById('toolMoveBtn').classList.add('active');
+            if (tool === 'wand') document.getElementById('toolWandBtn').classList.add('active');
+            if (tool === 'eraser') document.getElementById('toolEraserBtn').classList.add('active');
+        }
+
+        function loadDefaultAssets() {
+            setPresetLogo('left', 'https://upload.wikimedia.org/wikipedia/en/c/c1/Atletico_Madrid_logo.svg');
+            setPresetLogo('right', 'https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg');
+
+            const defaultPlayer = new Image();
+            defaultPlayer.crossOrigin = 'anonymous';
+            defaultPlayer.onload = () => {
+                state.playerImageRaw = defaultPlayer;
+                setupEditCanvas(defaultPlayer);
+            };
+            defaultPlayer.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+        }
+
+        function setPresetLogo(side, url) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                if (side === 'left') state.leftLogo = img;
+                else state.rightLogo = img;
+                renderCanvas();
+            };
+            img.src = url;
+        }
+
+        function handleLogoUpload(e, side) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = event => {
+                const img = new Image();
+                img.onload = () => {
+                    if (side === 'left') state.leftLogo = img;
+                    else state.rightLogo = img;
+                    renderCanvas();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handlePlayerUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = event => {
+                const img = new Image();
+                img.onload = () => {
+                    state.playerImageRaw = img;
+                    setupEditCanvas(img);
+
+                    if (state.removeBgApiKey) {
+                        processRemoveBgAPI(event.target.result);
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setupEditCanvas(img) {
+            playerEditCanvas.width = img.naturalWidth || img.width;
+            playerEditCanvas.height = img.naturalHeight || img.height;
+            playerEditCtx.clearRect(0, 0, playerEditCanvas.width, playerEditCanvas.height);
+            playerEditCtx.drawImage(img, 0, 0);
+            state.playerImageProcessed = playerEditCanvas;
+            renderCanvas();
+        }
+
+        async function processRemoveBgAPI(base64OrUrl) {
+            if (!state.removeBgApiKey) {
+                alert('Please enter your Remove.bg API Key in the "API Key" tab first!');
+                switchTab('settings');
+                return;
+            }
+
+            showLoading(true, "Removing Background with Remove.bg...");
+
+            try {
+                let blob;
+                if (base64OrUrl.startsWith('data:')) {
+                    const res = await fetch(base64OrUrl);
+                    blob = await res.blob();
+                } else {
+                    const res = await fetch(base64OrUrl);
+                    blob = await res.blob();
+                }
+
+                const formData = new FormData();
+                formData.append('image_file', blob);
+                formData.append('size', 'auto');
+
+                const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: { 'X-Api-Key': state.removeBgApiKey },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Remove.bg API Error: ${response.statusText}`);
+                }
+
+                const resultBlob = await response.blob();
+                const resultUrl = URL.createObjectURL(resultBlob);
+
+                const transparentImg = new Image();
+                transparentImg.onload = () => {
+                    setupEditCanvas(transparentImg);
+                    showLoading(false);
+                };
+                transparentImg.src = resultUrl;
+
+            } catch (err) {
+                console.error(err);
+                alert('Failed to remove background: ' + err.message);
+                showLoading(false);
+            }
+        }
+
+        function showLoading(show, text = "") {
+            const overlay = document.getElementById('loadingOverlay');
+            document.getElementById('loadingText').innerText = text;
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function handleCanvasClick(e) {
+            if (state.activeTool === 'move' || !state.playerImageProcessed) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clickX = (e.clientX - rect.left) * scaleX;
+            const clickY = (e.clientY - rect.top) * scaleY;
+
+            const pWidth = playerEditCanvas.width * state.playerScale;
+            const pHeight = playerEditCanvas.height * state.playerScale;
+            const pX = (1080 - pWidth) / 2;
+            const pY = 320 + state.playerYOffset;
+
+            const localX = (clickX - pX) / state.playerScale;
+            const localY = (clickY - pY) / state.playerScale;
+
+            if (localX >= 0 && localX < playerEditCanvas.width && localY >= 0 && localY < playerEditCanvas.height) {
+                if (state.activeTool === 'eraser') {
+                    playerEditCtx.save();
+                    playerEditCtx.globalCompositeOperation = 'destination-out';
+                    playerEditCtx.beginPath();
+                    playerEditCtx.arc(localX, localY, state.brushSize, 0, Math.PI * 2);
+                    playerEditCtx.fill();
+                    playerEditCtx.restore();
+                    renderCanvas();
+                } else if (state.activeTool === 'wand') {
+                    colorKeyErase(localX, localY, state.brushSize);
+                    renderCanvas();
+                }
+            }
+        }
+
+        function colorKeyErase(startX, startY, tolerance) {
+            const imgData = playerEditCtx.getImageData(0, 0, playerEditCanvas.width, playerEditCanvas.height);
+            const data = imgData.data;
+            const width = playerEditCanvas.width;
+
+            const idx = (Math.floor(startY) * width + Math.floor(startX)) * 4;
+            const targetR = data[idx];
+            const targetG = data[idx + 1];
+            const targetB = data[idx + 2];
+
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i + 3] === 0) continue;
+
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                const diff = Math.sqrt((r - targetR) ** 2 + (g - targetG) ** 2 + (b - targetB) ** 2);
+
+                if (diff < tolerance * 2.2) {
+                    data[i + 3] = 0;
+                }
+            }
+
+            playerEditCtx.putImageData(imgData, 0, 0);
+        }
+
+        function renderCanvas() {
+            // 1. Base Dark Background
+            ctx.fillStyle = '#060a12';
+            ctx.fillRect(0, 0, 1080, 1920);
+
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, 1920);
+            bgGradient.addColorStop(0, '#0c1b33');
+            bgGradient.addColorStop(0.5, '#081224');
+            bgGradient.addColorStop(1, '#04070e');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, 1080, 1920);
+
+            // Side Chevron Accents
+            ctx.fillStyle = 'rgba(2, 132, 199, 0.12)';
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(80, 280 + i * 220);
+                ctx.lineTo(220, 370 + i * 220);
+                ctx.lineTo(80, 460 + i * 220);
+                ctx.lineTo(20, 460 + i * 220);
+                ctx.lineTo(160, 370 + i * 220);
+                ctx.lineTo(20, 280 + i * 220);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(1000, 280 + i * 220);
+                ctx.lineTo(860, 370 + i * 220);
+                ctx.lineTo(1000, 460 + i * 220);
+                ctx.lineTo(1060, 460 + i * 220);
+                ctx.lineTo(920, 370 + i * 220);
+                ctx.lineTo(1060, 280 + i * 220);
+                ctx.fill();
+            }
+
+            // 2. Render Player Image
+            if (state.playerImageProcessed) {
+                const pWidth = playerEditCanvas.width * state.playerScale;
+                const pHeight = playerEditCanvas.height * state.playerScale;
+                const pX = (1080 - pWidth) / 2;
+                const pY = 320 + state.playerYOffset;
+
+                ctx.drawImage(state.playerImageProcessed, pX, pY, pWidth, pHeight);
+            }
+
+            // 3. Top Slanted Lime "TRANSFER NEWS" Badge
+            ctx.save();
+            ctx.translate(540, 210);
+            ctx.rotate(-0.06);
+
+            const badgeWidth = 560;
+            const badgeHeight = 90;
+            ctx.fillStyle = '#bbf70e';
+            ctx.fillRect(-badgeWidth / 2, -badgeHeight / 2, badgeWidth, badgeHeight);
+
+            ctx.font = '900 68px "Montserrat", sans-serif';
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(state.topBadge.toUpperCase(), 0, 2);
+            ctx.restore();
+
+            // 4. Main Giant "RUMOUR" Header Text
+            ctx.save();
+            ctx.font = '700 240px "Teko", sans-serif';
+            ctx.fillStyle = '#bbf70e';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+            ctx.shadowBlur = 25;
+            ctx.shadowOffsetY = 10;
+            ctx.fillText(state.mainHeadline.toUpperCase(), 540, 420);
+            ctx.restore();
+
+            // 5. Player Name Slanted Badge
+            ctx.save();
+            ctx.translate(610, 1220);
+            ctx.rotate(-0.04);
+
+            const nameText = `${state.playerName.toUpperCase()} (${state.playerAge})`;
+            ctx.font = '900 52px "Montserrat", sans-serif';
+            const nameWidth = ctx.measureText(nameText).width + 60;
+
+            ctx.fillStyle = '#bbf70e';
+            ctx.fillRect(-nameWidth / 2, -45, nameWidth, 90);
+
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(nameText, 0, 2);
+            ctx.restore();
+
+            // 6. Bottom Dark Blue Transfer Card Container
+            const cardY = 1290;
+            ctx.fillStyle = '#091528';
+            ctx.fillRect(80, cardY, 920, 450);
+            ctx.strokeStyle = '#182740';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(80, cardY, 920, 450);
+
+            if (state.leftLogo) {
+                ctx.drawImage(state.leftLogo, 170, cardY + 40, 160, 160);
+            }
+            if (state.rightLogo) {
+                ctx.drawImage(state.rightLogo, 750, cardY + 40, 160, 160);
+            }
+
+            // Central Transfer Lime Arrows
+            ctx.fillStyle = '#bbf70e';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(450 + i * 45, cardY + 90);
+                ctx.lineTo(485 + i * 45, cardY + 120);
+                ctx.lineTo(450 + i * 45, cardY + 150);
+                ctx.lineTo(425 + i * 45, cardY + 150);
+                ctx.lineTo(460 + i * 45, cardY + 120);
+                ctx.lineTo(425 + i * 45, cardY + 90);
+                ctx.fill();
+            }
+
+            // Card Dividers
+            ctx.strokeStyle = '#182740';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(110, cardY + 240); ctx.lineTo(970, cardY + 240);
+            ctx.moveTo(380, cardY + 260); ctx.lineTo(380, cardY + 410);
+            ctx.moveTo(700, cardY + 260); ctx.lineTo(700, cardY + 410);
+            ctx.stroke();
+
+            // Stats Sub-Headers & Values
+            ctx.textAlign = 'center';
+
+            ctx.font = '800 20px "Montserrat", sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('MARKET VALUE', 230, cardY + 295);
+            ctx.font = '700 50px "Teko", sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(state.marketValue, 230, cardY + 365);
+
+            ctx.font = '800 20px "Montserrat", sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('STATUS', 540, cardY + 295);
+            ctx.font = '700 50px "Teko", sans-serif';
+            ctx.fillStyle = '#bbf70e';
+            ctx.fillText(state.status, 540, cardY + 365);
+
+            ctx.font = '800 20px "Montserrat", sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('UNTIL', 840, cardY + 295);
+            ctx.font = '700 50px "Teko", sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(state.until, 840, cardY + 365);
+
+            // 7. Footer Decorative Chevrons
+            ctx.fillStyle = '#bbf70e';
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(430 + i * 60, 1780);
+                ctx.lineTo(470 + i * 60, 1810);
+                ctx.lineTo(430 + i * 60, 1840);
+                ctx.lineTo(400 + i * 60, 1840);
+                ctx.lineTo(440 + i * 60, 1810);
+                ctx.lineTo(400 + i * 60, 1780);
+                ctx.fill();
+            }
+
+            ctx.font = '700 18px "Montserrat", sans-serif';
+            ctx.fillStyle = '#334155';
+            ctx.fillText('@TRANSFERNEWS', 540, 1880);
+        }
+
+        function downloadPoster() {
+            const link = document.createElement('a');
+            link.download = `transfer-news-${state.playerName.toLowerCase().replace(/\s+/g, '-')}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+    </script>
+</body>
+</html>
